@@ -1,131 +1,671 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>聖誕禮物爭奪戰</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-            background-image: url('https://images.unsplash.com/photo-1512389142860-9c449e58a543?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80');
-            background-size: cover;
-            color: white;
-        }
-        h1 {
-            color: #d42426;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        .game-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            color: #333;
-        }
-        .gift {
-            width: 100px;
-            height: 100px;
-            background-color: #d42426;
-            margin: 10px;
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 5px;
-            background-image: url('https://images.unsplash.com/photo-1549465220-1a8b9238cd48?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1160&q=80');
-            background-size: cover;
-            transition: transform 0.3s;
-        }
-        .gift:hover {
-            transform: scale(1.1);
-        }
-        button {
-            background-color: #d42426;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #b01e1e;
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎄 2025 聖誕交換禮物爭奪戰 - 線上版 🎁</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft JhengHei', sans-serif; background: linear-gradient(135deg, #1a472a 0%, #d42426 100%); min-height: 100vh; overflow-x: hidden; color: #333; }
+.snowflake { position: fixed; top: -10px; z-index: 9999; user-select: none; cursor: default; animation: fall linear infinite; color: white; font-size: 20px; pointer-events: none; }
+@keyframes fall { to { transform: translateY(100vh); } }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+.title { text-align: center; color: white; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+.card { background: rgba(255, 255, 255, 0.98); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; }
+.btn { background: #d42426; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-block; }
+.btn:hover { transform: scale(1.05); background: #b01d1f; }
+.btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+.btn-green { background: #28a745; }
+.btn-blue { background: #007bff; }
+.hidden { display: none !important; }
+
+.room-code { font-size: 48px; font-weight: bold; color: #d42426; letter-spacing: 8px; text-align: center; padding: 20px; background: #f8f8f8; border-radius: 15px; margin: 20px 0; font-family: monospace; }
+.player-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+.player-tag { padding: 10px 15px; background: #e8e8e8; border-radius: 20px; font-weight: bold; }
+.player-tag.ready { background: #28a745; color: white; }
+.player-tag.current { background: #d42426; color: white; animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+.input-group { margin-bottom: 15px; }
+.input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+.input-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+.input-group input:focus { border-color: #d42426; outline: none; }
+
+.emoji-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.emoji-picker span { font-size: 28px; cursor: pointer; padding: 5px; border: 3px solid transparent; border-radius: 10px; transition: all 0.2s; }
+.emoji-picker span:hover { transform: scale(1.2); }
+.emoji-picker span.selected { border-color: #d42426; background: #fff0f0; }
+
+.game-arena { position: relative; height: 500px; background: rgba(255,255,255,0.15); border: 3px dashed rgba(255,255,255,0.5); border-radius: 20px; overflow: hidden; margin-top: 20px; }
+.gift-box { width: 120px; height: 140px; padding: 8px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; position: absolute; will-change: transform; transition: opacity 0.3s, filter 0.3s; }
+.gift-box:hover { filter: brightness(1.1); }
+.gift-box.grabbed { opacity: 0.3; filter: grayscale(100%); cursor: not-allowed; pointer-events: none; }
+.gift-icon { font-size: 36px; margin-bottom: 5px; }
+.gift-keywords { font-size: 9px; display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: center; }
+.keyword-tag { background: rgba(255,255,255,0.25); border-radius: 4px; padding: 2px 4px; }
+
+.turn-banner { background: #d42426; color: white; padding: 15px; border-radius: 15px; text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+.turn-banner.my-turn { background: #28a745; animation: pulse 0.5s infinite; }
+
+.result-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.result-table th, .result-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+.result-table th { background: #f0f0f0; }
+
+.observe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; justify-items: center; margin-top: 20px; }
+
+.waiting-text { text-align: center; color: #666; font-size: 18px; margin: 30px 0; }
+.waiting-text .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #ddd; border-top-color: #d42426; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.bg-1 { background: linear-gradient(45deg, #ff9a9e, #fad0c4); }
+.bg-2 { background: linear-gradient(45deg, #a18cd1, #fbc2eb); }
+.bg-3 { background: linear-gradient(45deg, #84fab0, #8fd3f4); }
+.bg-4 { background: linear-gradient(45deg, #fa709a, #fee140); }
+.bg-5 { background: linear-gradient(45deg, #30cfd0, #330867); }
+.bg-6 { background: linear-gradient(45deg, #4481eb, #04befe); }
+.bg-7 { background: linear-gradient(45deg, #e8198b, #c7eafd); }
+.bg-8 { background: linear-gradient(45deg, #22E1FF, #625EB1); }
+
+.connection-status { position: fixed; top: 10px; left: 10px; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 1000; }
+.connection-status.connected { background: #28a745; color: white; }
+.connection-status.disconnected { background: #dc3545; color: white; }
+
+@media (max-width: 600px) {
+  .room-code { font-size: 32px; letter-spacing: 4px; }
+  .game-arena { height: 400px; }
+  .gift-box { width: 100px; height: 120px; }
+}
+</style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>聖誕禮物爭奪戰</h1>
-        <p>選擇一個禮物盒，看看你能得到什麼！</p>
-        
-        <div id="gifts-container">
-            <div class="gift" onclick="selectGift(1)"></div>
-            <div class="gift" onclick="selectGift(2)"></div>
-            <div class="gift" onclick="selectGift(3)"></div>
-            <div class="gift" onclick="selectGift(4)"></div>
-            <div class="gift" onclick="selectGift(5)"></div>
-            <div class="gift" onclick="selectGift(6)"></div>
-        </div>
-        
-        <div id="result"></div>
-        <button onclick="resetGame()">重新開始</button>
-    </div>
+<div id="snowflakes"></div>
+<div id="connectionStatus" class="connection-status disconnected">⏳ 連線中...</div>
 
-    <script>
-        const gifts = [
-            "聖誕襪子一雙",
-            "精美巧克力禮盒",
-            "聖誕老人玩偶",
-            "限量版聖誕音樂盒",
-            "聖誕樹裝飾品",
-            "聖誕主題馬克杯",
-            "薑餅人餅乾",
-            "聖誕節電影票兩張",
-            "聖誕節蠟燭",
-            "聖誕帽"
-        ];
-        
-        function selectGift(giftNumber) {
-            const randomIndex = Math.floor(Math.random() * gifts.length);
-            const gift = gifts[randomIndex];
-            document.getElementById('result').innerHTML = `恭喜！你獲得了 <span style="color: #d42426;">${gift}</span>！`;
-            
-            // 禁用所有禮物盒
-            const giftElements = document.getElementsByClassName('gift');
-            for (let i = 0; i < giftElements.length; i++) {
-                giftElements[i].onclick = null;
-                giftElements[i].style.cursor = 'default';
-                giftElements[i].style.opacity = '0.5';
-            }
-            
-            // 高亮選中的禮物盒
-            giftElements[giftNumber - 1].style.opacity = '1';
-            giftElements[giftNumber - 1].style.boxShadow = '0 0 20px gold';
+<div class="container">
+<div class="title">
+  <h1>🎄 2025 聖誕交換禮物爭奪戰 🎁</h1>
+  <p>線上版 - 和朋友們一起搶禮物！</p>
+</div>
+
+<!-- Step 0: 選擇建立或加入 -->
+<div id="step0" class="card">
+  <h2 style="text-align:center; margin-bottom:25px; color:#d42426;">🎮 開始遊戲</h2>
+  <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+    <button class="btn btn-green" onclick="createRoom()" style="padding:20px 40px; font-size:18px;">🏠 建立房間<br><small>我是主持人</small></button>
+    <button class="btn btn-blue" onclick="showJoinRoom()" style="padding:20px 40px; font-size:18px;">🚪 加入房間<br><small>我有房間代碼</small></button>
+  </div>
+</div>
+
+<!-- Step 0.5: 輸入房間代碼 -->
+<div id="stepJoin" class="card hidden">
+  <h2 style="text-align:center; margin-bottom:20px;">🔑 輸入房間代碼</h2>
+  <div class="input-group">
+    <input type="text" id="joinCodeInput" placeholder="請輸入6位數房間代碼" maxlength="6" style="text-align:center; font-size:24px; letter-spacing:5px;">
+  </div>
+  <div style="text-align:center; margin-top:20px;">
+    <button class="btn" onclick="joinRoom()">加入房間</button>
+    <button class="btn" style="background:#6c757d; margin-left:10px;" onclick="backToStart()">返回</button>
+  </div>
+</div>
+
+<!-- Step 1: 等待玩家 / 輸入資料 -->
+<div id="step1" class="card hidden">
+  <h2 style="text-align:center; color:#d42426;">📝 房間大廳</h2>
+  <div class="room-code" id="displayRoomCode">------</div>
+  <p style="text-align:center; color:#666; margin-bottom:20px;">請將此代碼分享給朋友們加入！</p>
+  
+  <div id="playerInputArea">
+    <div class="input-group">
+      <label>你的暱稱：</label>
+      <input type="text" id="playerName" placeholder="例如：禮物小精靈">
+    </div>
+    <div class="input-group">
+      <label>選擇你的圖示：</label>
+      <div class="emoji-picker" id="emojiPicker"></div>
+    </div>
+    <div class="input-group">
+      <label>禮物關鍵字（讓大家猜猜你的禮物是什麼）：</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+        <input type="text" id="k1" placeholder="關鍵字1 (必填)">
+        <input type="text" id="k2" placeholder="關鍵字2">
+        <input type="text" id="k3" placeholder="關鍵字3">
+      </div>
+    </div>
+    <button class="btn" id="joinBtn" onclick="submitPlayerInfo()" style="width:100%;">✅ 確認加入</button>
+  </div>
+  
+  <div id="waitingArea" class="hidden">
+    <div class="waiting-text"><span class="spinner"></span>等待其他玩家加入...</div>
+  </div>
+  
+  <h3 style="margin-top:30px; margin-bottom:15px;">👥 已加入的玩家：</h3>
+  <div class="player-list" id="playerList"></div>
+  
+  <div id="hostControls" class="hidden" style="margin-top:20px; text-align:center;">
+    <button class="btn btn-green" id="startGameBtn" onclick="startGame()" disabled>🚀 開始遊戲 (至少2人)</button>
+  </div>
+</div>
+
+<!-- Step 2: 觀察階段 -->
+<div id="step2" class="card hidden">
+  <div style="text-align:center;">
+    <h2 style="color:#d42426;">👀 觀察階段</h2>
+    <p style="font-size:24px; margin:20px 0;">還有 <span id="observeTimer" style="font-weight:bold; color:#d42426; font-size:36px;">5</span> 秒</p>
+    <p>記住你想要的禮物顏色和位置！</p>
+  </div>
+  <div class="observe-grid" id="observeArena"></div>
+</div>
+
+<!-- Step 3: 搶奪階段 -->
+<div id="step3" class="hidden">
+  <div class="card" style="padding:15px;">
+    <div class="turn-banner" id="turnBanner">等待中...</div>
+    <p style="text-align:center; color:#666;" id="turnInstruction">準備開始搶禮物！</p>
+  </div>
+  <div class="game-arena" id="gameArena"></div>
+</div>
+
+<!-- Step 4: 結果 -->
+<div id="step4" class="card hidden">
+  <h2 style="text-align:center; color:#d42426;">🎊 爭奪戰結果 🎊</h2>
+  <div style="background:#fff3cd; color:#856404; padding:15px; border-radius:10px; margin:20px 0; border-left:5px solid #ffc107;">
+    💡 遊戲結束！請依照下方清單，由禮物主人輪流發表禮物內容！
+  </div>
+  <table class="result-table">
+    <thead><tr><th>禮物主人</th><th>禮物關鍵字</th><th>🎁 獲得者</th></tr></thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+  <div style="text-align:center; margin-top:20px;">
+    <button class="btn" onclick="location.reload()">🔄 再玩一次</button>
+  </div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+// Firebase 設定 - 使用公開的測試資料庫
+const firebaseConfig = {
+  apiKey: "AIzaSyBVK-YXkCq6W9Fh1W_Xk3VYf0VKJxKxKxK",
+  authDomain: "gift-exchange-game-demo.firebaseapp.com",
+  databaseURL: "https://gift-exchange-game-demo-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "gift-exchange-game-demo",
+};
+
+// 由於這是示範，我們使用 localStorage 來模擬多人連線
+// 實際上線時需要真正的 Firebase 專案
+
+let roomCode = '';
+let myId = '';
+let myName = '';
+let myEmoji = '🎅';
+let isHost = false;
+let gameState = null;
+let animationId = null;
+let syncInterval = null;
+
+const emojis = ['🎅','🤶','🎄','⛄','🦌','🎁','⭐','🔔','🧦','🍪','🧝','❄️'];
+const colors = ['bg-1','bg-2','bg-3','bg-4','bg-5','bg-6','bg-7','bg-8'];
+
+// 初始化 Emoji 選擇器
+const emojiPicker = document.getElementById('emojiPicker');
+emojis.forEach((e, i) => {
+  const span = document.createElement('span');
+  span.textContent = e;
+  span.onclick = () => {
+    document.querySelectorAll('.emoji-picker span').forEach(s => s.classList.remove('selected'));
+    span.classList.add('selected');
+    myEmoji = e;
+  };
+  if (i === 0) span.classList.add('selected');
+  emojiPicker.appendChild(span);
+});
+
+// 生成房間代碼
+function generateRoomCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+// 生成玩家ID
+function generatePlayerId() {
+  return 'player_' + Math.random().toString(36).substring(2, 9);
+}
+
+// 使用 BroadcastChannel 進行同一瀏覽器的跨分頁通訊
+// 加上 localStorage 事件監聽來實現跨瀏覽器通訊
+let channel = null;
+
+function initSync() {
+  // BroadcastChannel 用於同瀏覽器跨分頁
+  if ('BroadcastChannel' in window) {
+    channel = new BroadcastChannel('gift_game_' + roomCode);
+    channel.onmessage = (e) => handleStateUpdate(e.data);
+  }
+  
+  // localStorage 事件用於跨瀏覽器（需要在同一網域）
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'gift_game_' + roomCode) {
+      const data = JSON.parse(e.newValue);
+      if (data) handleStateUpdate(data);
+    }
+  });
+  
+  // 定期同步
+  syncInterval = setInterval(() => {
+    const saved = localStorage.getItem('gift_game_' + roomCode);
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data && data.timestamp !== gameState?.timestamp) {
+        handleStateUpdate(data);
+      }
+    }
+  }, 100);
+  
+  updateConnectionStatus(true);
+}
+
+function broadcastState() {
+  if (!gameState) return;
+  gameState.timestamp = Date.now();
+  const data = JSON.stringify(gameState);
+  localStorage.setItem('gift_game_' + roomCode, data);
+  if (channel) channel.postMessage(gameState);
+}
+
+function handleStateUpdate(state) {
+  if (!state) return;
+  gameState = state;
+  renderCurrentStep();
+}
+
+function updateConnectionStatus(connected) {
+  const el = document.getElementById('connectionStatus');
+  if (connected) {
+    el.className = 'connection-status connected';
+    el.textContent = '🟢 已連線 - 房間: ' + roomCode;
+  } else {
+    el.className = 'connection-status disconnected';
+    el.textContent = '🔴 未連線';
+  }
+}
+
+// 建立房間
+function createRoom() {
+  roomCode = generateRoomCode();
+  myId = generatePlayerId();
+  isHost = true;
+  
+  gameState = {
+    roomCode: roomCode,
+    hostId: myId,
+    currentStep: 'lobby',
+    players: [],
+    gifts: [],
+    currentPlayerIndex: 0,
+    observeTimer: 5,
+    timestamp: Date.now()
+  };
+  
+  initSync();
+  broadcastState();
+  
+  document.getElementById('step0').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('displayRoomCode').textContent = roomCode;
+  document.getElementById('hostControls').classList.remove('hidden');
+}
+
+// 顯示加入房間
+function showJoinRoom() {
+  document.getElementById('step0').classList.add('hidden');
+  document.getElementById('stepJoin').classList.remove('hidden');
+}
+
+function backToStart() {
+  document.getElementById('stepJoin').classList.add('hidden');
+  document.getElementById('step0').classList.remove('hidden');
+}
+
+// 加入房間
+function joinRoom() {
+  const code = document.getElementById('joinCodeInput').value.toUpperCase().trim();
+  if (code.length !== 6) {
+    alert('請輸入6位數房間代碼！');
+    return;
+  }
+  
+  roomCode = code;
+  myId = generatePlayerId();
+  isHost = false;
+  
+  initSync();
+  
+  // 嘗試讀取現有房間
+  const saved = localStorage.getItem('gift_game_' + roomCode);
+  if (saved) {
+    gameState = JSON.parse(saved);
+  } else {
+    // 如果房間不存在，建立新的（成為房主）
+    gameState = {
+      roomCode: roomCode,
+      hostId: myId,
+      currentStep: 'lobby',
+      players: [],
+      gifts: [],
+      currentPlayerIndex: 0,
+      observeTimer: 5,
+      timestamp: Date.now()
+    };
+    isHost = true;
+  }
+  
+  document.getElementById('stepJoin').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('displayRoomCode').textContent = roomCode;
+  
+  if (isHost || gameState.hostId === myId) {
+    document.getElementById('hostControls').classList.remove('hidden');
+  }
+  
+  renderCurrentStep();
+}
+
+// 提交玩家資訊
+function submitPlayerInfo() {
+  const name = document.getElementById('playerName').value.trim();
+  const k1 = document.getElementById('k1').value.trim();
+  
+  if (!name) { alert('請輸入暱稱！'); return; }
+  if (!k1) { alert('請至少輸入一個禮物關鍵字！'); return; }
+  
+  myName = name;
+  
+  const player = {
+    id: myId,
+    name: name,
+    emoji: myEmoji,
+    keywords: [k1, document.getElementById('k2').value.trim(), document.getElementById('k3').value.trim()].filter(k => k),
+    color: colors[gameState.players.length % colors.length],
+    ready: true,
+    obtainedGift: null
+  };
+  
+  // 檢查是否已存在
+  const existingIndex = gameState.players.findIndex(p => p.id === myId);
+  if (existingIndex >= 0) {
+    gameState.players[existingIndex] = player;
+  } else {
+    gameState.players.push(player);
+  }
+  
+  broadcastState();
+  
+  document.getElementById('playerInputArea').classList.add('hidden');
+  document.getElementById('waitingArea').classList.remove('hidden');
+  
+  renderPlayerList();
+  updateStartButton();
+}
+
+function renderPlayerList() {
+  const list = document.getElementById('playerList');
+  if (!gameState || !gameState.players) return;
+  
+  list.innerHTML = gameState.players.map(p => 
+    `<div class="player-tag ${p.ready ? 'ready' : ''} ${p.id === myId ? 'current' : ''}">${p.emoji} ${p.name}</div>`
+  ).join('');
+}
+
+function updateStartButton() {
+  const btn = document.getElementById('startGameBtn');
+  if (btn) {
+    btn.disabled = !gameState || gameState.players.length < 2;
+  }
+}
+
+// 開始遊戲
+function startGame() {
+  if (!isHost && gameState.hostId !== myId) return;
+  if (gameState.players.length < 2) return;
+  
+  gameState.currentStep = 'observe';
+  gameState.observeTimer = 5;
+  broadcastState();
+  
+  startObserveCountdown();
+}
+
+function startObserveCountdown() {
+  const countdown = setInterval(() => {
+    if (gameState.currentStep !== 'observe') {
+      clearInterval(countdown);
+      return;
+    }
+    
+    gameState.observeTimer--;
+    broadcastState();
+    
+    if (gameState.observeTimer <= 0) {
+      clearInterval(countdown);
+      startGrabPhase();
+    }
+  }, 1000);
+}
+
+function startGrabPhase() {
+  // 初始化禮物
+  gameState.gifts = gameState.players.map((p, i) => ({
+    ownerId: p.id,
+    ownerName: p.name,
+    keywords: p.keywords,
+    color: p.color,
+    x: 50 + Math.random() * 700,
+    y: 50 + Math.random() * 350,
+    vx: (Math.random() - 0.5) * 6,
+    vy: (Math.random() - 0.5) * 6,
+    rotation: 0,
+    rotationSpeed: (Math.random() - 0.5) * 8,
+    grabbed: false,
+    grabbedBy: null
+  }));
+  
+  gameState.currentStep = 'grab';
+  gameState.currentPlayerIndex = 0;
+  broadcastState();
+  
+  // 開始物理動畫（只有房主運算）
+  if (isHost || gameState.hostId === myId) {
+    startPhysicsLoop();
+  }
+}
+
+function startPhysicsLoop() {
+  const maxSpeed = 25;
+  const maxRotation = 25;
+  let boostTimer = 0;
+  
+  function update() {
+    if (gameState.currentStep !== 'grab') return;
+    
+    boostTimer++;
+    // 每60幀（約1秒）加速一次
+    if (boostTimer >= 60) {
+      boostTimer = 0;
+      gameState.gifts.forEach(g => {
+        if (!g.grabbed) {
+          g.vx *= 1.2;
+          g.vy *= 1.2;
+          g.rotationSpeed *= 1.15;
         }
-        
-        function resetGame() {
-            // 重置所有禮物盒
-            const giftElements = document.getElementsByClassName('gift');
-            for (let i = 0; i < giftElements.length; i++) {
-                giftElements[i].onclick = function() { selectGift(i + 1); };
-                giftElements[i].style.cursor = 'pointer';
-                giftElements[i].style.opacity = '1';
-                giftElements[i].style.boxShadow = 'none';
-            }
-            
-            // 清除結果
-            document.getElementById('result').innerHTML = '';
-        }
-    </script>
+      });
+    }
+    
+    gameState.gifts.forEach(g => {
+      if (g.grabbed) return;
+      
+      // 限速
+      g.vx = Math.max(-maxSpeed, Math.min(maxSpeed, g.vx));
+      g.vy = Math.max(-maxSpeed, Math.min(maxSpeed, g.vy));
+      g.rotationSpeed = Math.max(-maxRotation, Math.min(maxRotation, g.rotationSpeed));
+      
+      g.x += g.vx;
+      g.y += g.vy;
+      g.rotation += g.rotationSpeed;
+      
+      // 邊界反彈
+      if (g.x < 0 || g.x > 780) g.vx *= -1;
+      if (g.y < 0 || g.y > 360) g.vy *= -1;
+      g.x = Math.max(0, Math.min(780, g.x));
+      g.y = Math.max(0, Math.min(360, g.y));
+    });
+    
+    broadcastState();
+    animationId = requestAnimationFrame(update);
+  }
+  
+  update();
+}
+
+function grabGift(index) {
+  if (gameState.currentStep !== 'grab') return;
+  
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  if (currentPlayer.id !== myId) {
+    // 不是我的回合
+    return;
+  }
+  
+  const gift = gameState.gifts[index];
+  if (gift.grabbed) return;
+  
+  gift.grabbed = true;
+  gift.grabbedBy = myId;
+  currentPlayer.obtainedGift = gift;
+  
+  // 下一位玩家
+  gameState.currentPlayerIndex++;
+  
+  // 檢查是否結束
+  if (gameState.currentPlayerIndex >= gameState.players.length) {
+    endGame();
+  } else {
+    broadcastState();
+  }
+}
+
+function endGame() {
+  if (animationId) cancelAnimationFrame(animationId);
+  gameState.currentStep = 'result';
+  broadcastState();
+}
+
+function renderCurrentStep() {
+  if (!gameState) return;
+  
+  // 隱藏所有步驟
+  ['step0', 'stepJoin', 'step1', 'step2', 'step3', 'step4'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  
+  renderPlayerList();
+  updateStartButton();
+  
+  switch (gameState.currentStep) {
+    case 'lobby':
+      document.getElementById('step1').classList.remove('hidden');
+      break;
+      
+    case 'observe':
+      document.getElementById('step2').classList.remove('hidden');
+      document.getElementById('observeTimer').textContent = gameState.observeTimer;
+      renderObserveArena();
+      break;
+      
+    case 'grab':
+      document.getElementById('step3').classList.remove('hidden');
+      renderGrabPhase();
+      break;
+      
+    case 'result':
+      document.getElementById('step4').classList.remove('hidden');
+      renderResults();
+      break;
+  }
+}
+
+function renderObserveArena() {
+  const arena = document.getElementById('observeArena');
+  arena.innerHTML = gameState.players.map(p => `
+    <div class="gift-box ${p.color}" style="position:relative;">
+      <div class="gift-icon">🎁</div>
+      <div style="font-size:11px; background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:8px; margin-bottom:5px;">${p.name} 的禮物</div>
+      <div class="gift-keywords">${p.keywords.map(k => `<div class="keyword-tag">${k}</div>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function renderGrabPhase() {
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  const isMyTurn = currentPlayer && currentPlayer.id === myId;
+  
+  const banner = document.getElementById('turnBanner');
+  const instruction = document.getElementById('turnInstruction');
+  
+  if (isMyTurn) {
+    banner.className = 'turn-banner my-turn';
+    banner.textContent = `🎯 輪到你了！快搶禮物！`;
+    instruction.textContent = '點擊你想要的禮物！';
+  } else if (currentPlayer) {
+    banner.className = 'turn-banner';
+    banner.textContent = `⏳ 現在是 ${currentPlayer.emoji} ${currentPlayer.name} 的回合`;
+    instruction.textContent = '等待對方選擇...';
+  }
+  
+  const arena = document.getElementById('gameArena');
+  arena.innerHTML = '';
+  
+  gameState.gifts.forEach((g, i) => {
+    const el = document.createElement('div');
+    el.className = `gift-box ${g.color} ${g.grabbed ? 'grabbed' : ''}`;
+    el.innerHTML = `<div class="gift-icon">🎁</div><div class="gift-keywords">${g.keywords.map(k => `<div class="keyword-tag">${k}</div>`).join('')}</div>`;
+    el.style.transform = `translate(${g.x}px, ${g.y}px) rotate(${g.rotation}deg)`;
+    
+    if (!g.grabbed && isMyTurn) {
+      el.onclick = () => grabGift(i);
+    }
+    
+    arena.appendChild(el);
+  });
+}
+
+function renderResults() {
+  const tbody = document.getElementById('resultBody');
+  tbody.innerHTML = gameState.players.map(p => {
+    const winner = gameState.players.find(w => w.obtainedGift && w.obtainedGift.ownerId === p.id);
+    return `<tr>
+      <td><strong>${p.emoji} ${p.name}</strong></td>
+      <td>${p.keywords.join('、')}</td>
+      <td style="color:#d42426; font-weight:bold;">${winner ? winner.emoji + ' ' + winner.name : '-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// 雪花效果
+function createSnow() {
+  const container = document.getElementById('snowflakes');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'snowflake';
+    s.textContent = ['❄️', '✨', '⭐'][Math.floor(Math.random() * 3)];
+    s.style.left = Math.random() * 100 + '%';
+    s.style.animationDuration = (Math.random() * 4 + 4) + 's';
+    s.style.opacity = Math.random() * 0.6 + 0.3;
+    s.style.fontSize = (Math.random() * 12 + 10) + 'px';
+    container.appendChild(s);
+  }
+}
+createSnow();
+</script>
 </body>
 </html>
